@@ -43,7 +43,7 @@
         display: grid;
         place-items: center;
         background: var(--paper);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+font-family: Arial, Helvetica, sans-serif;
       }
 
       .screen {
@@ -62,7 +62,7 @@
 
 .brand {
         position: absolute;
-        top: clamp(25px, 3.5dvh, 40px); /* Subimos el logo */
+        top: clamp(40px, 6dvh, 60px); /* Le damos un poco de respiro desde arriba */
         left: 50%;
         z-index: 3;
         display: grid;
@@ -83,7 +83,7 @@
 
 .identity {
         position: absolute;
-        top: clamp(100px, 12.5dvh, 125px); /* Reducimos estos valores para que suba más */
+        top: clamp(155px, 20dvh, 185px); /* Subimos todo el bloque de nombres y código */
         left: 50%;
         z-index: 4;
         width: min(82vw, 330px);
@@ -120,11 +120,11 @@
 
 .photo-button {
         position: absolute;
-        top: clamp(415px, 53dvh, 485px); /* Un poquitito más arriba */
+        top: clamp(450px, 54dvh, 510px); /* La bajamos un poco para mantener la proporción */
         left: 50%;
         z-index: 4;
-        width: clamp(178px, 50vw, 215px); /* Un poquitito más ancha */
-        aspect-ratio: 0.83; /* Mantiene la proporción para que no se deforme la cara */
+        width: clamp(178px, 50vw, 215px);
+        aspect-ratio: 0.83;
         padding: 0;
         transform: translate(-50%, -50%);
         border: 0;
@@ -147,18 +147,19 @@
 .role {
         position: absolute;
         left: 50%;
-        bottom: clamp(175px, 26dvh, 205px); /* Lo empujamos más hacia arriba */
+        bottom: clamp(130px, 18.5dvh, 148px); /* Lo subimos para que flote en el punto medio exacto, tirando al código */
         z-index: 4;
         min-width: 10ch;
         transform: translateX(-50%);
         color: var(--orange);
-        font-size: clamp(1.15rem, 4.8vw, 1.3rem);
+        font-size: clamp(1.05rem, 4.2vw, 1.2rem); /* Letra más pequeña y fina, como en la foto */
         font-weight: 400;
         line-height: 1;
         text-align: center;
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
+
 .barcode-wrap {
         position: absolute;
         left: 0;
@@ -216,50 +217,40 @@
 
 @media (max-height: 735px) {
         .brand {
-          top: 20px; 
+          top: 30px; 
         }
         
-.identity {
-          top: 85px; /* Lo subimos también aquí para que no choque en pantallas cortas */
-        }
-        
-        .photo-button {
-          top: 50dvh; 
-        }
-
-        .role {
-          bottom: 155px; 
-        }
-        
-        .barcode-wrap {
-          bottom: 30px;
-          height: 60px;
-        }
-
         .brand-logo {
           width: 76px;
         }
 
         .identity {
-          top: 144px;
+          top: 125px; /* Nombres más arriba en pantallas pequeñas */
         }
-
+        
         .photo-button {
-          top: 57dvh;
+          top: 52dvh; 
           width: 146px;
         }
-.photo-button img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-        user-select: none;
-        -webkit-user-drag: none;
-        mix-blend-mode: multiply; /* Agrega esta línea para borrar el fondo blanco */
-      }
+
+        .photo-button img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center top;
+          user-select: none;
+          -webkit-user-drag: none;
+          mix-blend-mode: multiply; 
+        }
+
         .role {
-          bottom: 112px;
+          bottom: 115px; 
+        }
+        
+        .barcode-wrap {
+          bottom: 30px;
+          height: 60px;
         }
       }
     </style>
@@ -404,7 +395,25 @@ while (x < 334) {
           },
           false
         );
-
+// Mantener la pantalla encendida automáticamente
+        if ('wakeLock' in navigator) {
+          let wakeLock = null;
+          const requestWakeLock = async () => {
+            try {
+              wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) {
+              console.log('Wake Lock falló:', err);
+            }
+          };
+          requestWakeLock();
+          
+          // Reconectar si la app se minimiza y se vuelve a abrir
+          document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+              requestWakeLock();
+            }
+          });
+        }
         document.addEventListener(
           "wheel",
           (event) => {
